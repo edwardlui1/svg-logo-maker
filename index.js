@@ -1,9 +1,39 @@
 const inquirer = require("inquirer");
 const fs = require("fs");
-console.log("This is an SVG Logo Maker.");
-console.log("Please answer the following questions to generate your desired SVG logo.");
+const { Triangle, Square, Circle } = require("./lib/shapes.js");
 
-inquirer.prompt([
+function generateLogo({ text, textColor, shape, shapeColor }) {
+  const shapeSVG = getShape(shape, shapeColor);
+  const textSVG = `<text x="150" y="120" text-anchor="middle" font-size="40" fill="${textColor}">${text}</text>`;
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  ${shapeSVG}
+  ${textSVG}
+</svg>`; 
+};
+
+function getShape(shape, color) {
+  let logoShape;
+
+  switch (shape) {
+    case 'circle':
+      logoShape = new Circle();
+      break;
+    case 'triangle':
+      logoShape = new Triangle();
+      break;
+    case 'square':
+      logoShape = new Square();
+      break;
+    default:
+      return 'Invalid Shape';
+  }
+  logoShape.setColor(color);
+  return logoShape.render();
+};
+
+const questions = [
   {
     type: "input",
     name: "text",
@@ -23,7 +53,7 @@ inquirer.prompt([
   {
     type: "list",
     name: "shape",
-    message: "Choose a shape for the logo: (Enter key to select)",
+    message: "Choose a shape for the logo: (Use the `Enter` key to select)",
     choices: ["circle", "triangle", "square"],
   },
   {
@@ -31,4 +61,15 @@ inquirer.prompt([
     name: "shapeColor",
     message: "Enter a color keyword or hexadecimal value for the shape color:",
   },
-]);
+];
+
+inquirer.prompt(questions).then(async (response) => {
+  const svgLogo = generateLogo(response);
+
+  try {
+    await fs.promises.writeFile('logo.svg', svgLogo);
+    console.log('Generated SVG Logo');
+  } catch (err) {
+    console.error(err);
+  }
+});
