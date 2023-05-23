@@ -1,7 +1,9 @@
+// Importing necessary dependencies and modules
 const inquirer = require("inquirer");
 const fs = require("fs");
 const { Triangle, Square, Circle } = require("./lib/shapes.js");
 
+// Function to generate SVG logo
 function generateLogo({ text, textColor, shape, shapeColor }) {
   const shapeSVG = getShape(shape, shapeColor);
   const textSVG = `<text x="150" y="120" text-anchor="middle" font-size="40" fill="${textColor}">${text}</text>`;
@@ -13,6 +15,7 @@ function generateLogo({ text, textColor, shape, shapeColor }) {
 </svg>`; 
 };
 
+// Function to get shape type and color
 function getShape(shape, color) {
   let logoShape;
 
@@ -33,6 +36,7 @@ function getShape(shape, color) {
   return logoShape.render();
 };
 
+// Questions to prompt user
 const questions = [
   {
     type: "input",
@@ -63,9 +67,10 @@ const questions = [
   },
 ];
 
+// Using inquirer to prompt user 
 inquirer.prompt(questions).then(async (response) => {
   const svgLogo = generateLogo(response);
-
+  // Takes generated logo and writes to new file
   try {
     await fs.promises.writeFile('logo.svg', svgLogo);
     console.log('Generated SVG Logo');
